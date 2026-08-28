@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  webservice:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2026-08-28T12:00:24.23823802+05:30"
+    description: A Helm chart for Kubernetes
+    digest: 22a74f7587d731b26af759b7e53b2dac6d0f5bc67172231fb50081aa0ff20427
+    name: webservice
+    type: application
+    urls:
+    - webservice-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-08-28T12:00:24.23780382+05:30"
