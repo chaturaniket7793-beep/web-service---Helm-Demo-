@@ -1,208 +1,108 @@
- web-service- Helm-Demo
-___________________________________________________________________________________________________________________________________________________________________
-Creating Helm Repositories for Web Services
-Scenario
-As a DevOps engineer , you manage web services: To streamline deployment and Scaling , we will create a Helm repository containing Helm charts for web services. We will use a nginx image for web services to simulate their functionality.
+# Web-Service — Helm Demo
 
-*******************************************************************************************************************************************************************
-Helm Prerequisites
-______________________________________
-Helm installed
-Kubernetes cluster running
-kubectl installed
-kubectl configured
-GitHub account
-Git installed
-Basic Kubernetes knowledge
-Basic Git/GitHub knowledge
+## Creating a Helm Repository for Web Services
 
-*******************************************************************************************************************************************************************
+### Scenario
 
-Step 1: Create the Helm Charts
-Create the directory structure:
-# mkdir web-service
-# cd web-service
-Generate Helm charts for web services:
-command :- # helm create <chartname>
-# helm create webservice
+As a **DevOps Engineer**, you manage web services and want to streamline their **deployment and scaling**.
 
-******************************************************************************************************************************************************************
-Step 2 : Review Helm Charts components
+In this demo, we will:
 
-webservice/                 # Root chart directory created by `helm create`
-├── .helmignore             # Patterns to ignore when packaging
-├── Chart.yaml              # Chart metadata (name, version, description)
-├── values.yaml             # Default configuration values
-├── charts/                 # Folder for storing chart dependencies (subcharts)
-└── templates/              # Folder for Kubernetes manifest templates
-    ├── _helpers.tpl        # Reusable template snippets/helpers
-    ├── NOTES.txt           # Usage instructions displayed after installation
-    ├── deployment.yaml     # Default Kubernetes Deployment manifest
-    ├── service.yaml        # Default Kubernetes Service manifest
-    ├── ingress.yaml        # Default Kubernetes Ingress manifest
-    ├── serviceaccount.yaml # Default Kubernetes ServiceAccount manifest
-    ├── hpa.yaml            # Default Horizontal Pod Autoscaler manifest
-    └── tests/              # Folder containing test connection scripts
-        └── test-connection.yaml
+* Create a Helm chart for a web service.
+* Use the **Nginx** image.
+* Customize the Deployment and Service templates.
+* Package the Helm chart.
+* Host the Helm repository on **GitHub Pages**.
+* Install the chart using the Helm repository.
 
-*******************************************************************************************************************************************************************
+---
 
-Step 3: Customize the Helm Charts
+# Helm Prerequisites
 
-nginx Deployment Template (templates/deployment.yaml)
-Update the deployment.yaml file.
-_________________________________________________________________
-Set the required replica count.
-Use {{- with .Values.image }} for image-related values.
-Define variables where required.
-Add all mandatory labels.
-Use values from values.yaml.
-Make sure the YAML indentation and Helm syntax are correct.
-Ensure the Deployment works correctly with the nginx service.
+* Helm installed
+* Kubernetes cluster running
+* `kubectl` installed
+* `kubectl` configured
+* Git installed
+* GitHub account
+* Basic Kubernetes knowledge
+* Basic Git/GitHub knowledge
 
+---
 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ .Chart.Name }}
-  labels:
-    app.kubernetes.io/name: {{ .Chart.Name }}
-spec:
-  {{- $replicaCount := .Values.replicaCount }}
-  replicas: {{ $replicaCount }}
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: {{ .Chart.Name }}
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: {{ .Chart.Name }}
-    spec:
-      containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.image }}
-          image: "{{ .repository }}:{{ .tag }}"
-          imagePullPolicy: IfNotPresent
-          {{- end }}
+# Step 1: Create the Helm Chart
 
-____________________________________________________________________________________________________________________________________________________________
+### Create the project directory
 
-Service Template (templates/service.yaml)
-
-Create the missing service.yaml file inside your templates/ directory to expose your Nginx pods within the cluster:
-
-YAML
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ .Chart.Name }}
-  labels:
-    app.kubernetes.io/name: {{ .Chart.Name }}
-spec:
-    type: ClusterIP
-    ports:
-      - port: 80
-        targetPort: 80
-        protocol: TCP
-        name: http
-    selector:
-      app.kubernetes.io/name: {{ .Chart.Name }}
-
-______________________________________________________________________________________________________________________________________________________________
-
-Values File (values.yaml)
-Provide a default values.yaml file structured as follows:
-
-replicaCount: 3
-image:
-  repository: nginx
-  tag: latest
-*******************************************************************************************************************************************************************
-
-Step 3: Package the Charts
-Package the webservice chart: # cd - (come back to main webservice directory and run , Do not run below command inside directory chart files)
-# helm package webservice
-
-Create an index file
-# helm repo index .
-
-
-Step 4: Host the Helm Repo on GitHub
-Create a new GitHub repository:
-Name: WebService-Repo
-
-Initialize a Git repo:
-# git init
-# git remote add origin https://github.com/username/WebService-repo.git
-
-Push the Helm charts to GitHub:
-# git add .
-# git commit -m "Add webservice charts"
-# git push -u origin main
-
-Configure GitHub Pages:
-Go to the repo settings.
-Enable GitHub Pages from the main branch.
-
-Step 5: Using the Helm Repo
-
-Add the Helm repo:
-# helm repo add myrepo https://username.github.io/helm-repo
-# helm repo update
-
-Search for charts:
-# helm search repo myrepo
-
-Install a service (e.g., webservice):
-# helm install Web-service myrepo/Web-service
-
-
-Web Service Helm Demo
-A comprehensive guide and reference for creating, packaging, and hosting custom Nginx Helm charts on GitHub Pages.
-
-Overview
-This repository contains the deployment pipeline and chart configurations for deploying a scalable, high-availability Nginx web service using Helm on a Kubernetes cluster.
-
-Prerequisites
-Ensure the following tools and accounts are set up before proceeding:
-
-Helm installed
-
-Running Kubernetes cluster
-
-kubectl installed and configured
-
-Git installed and a GitHub account
-
-Basic knowledge of Kubernetes and Git/GitHub
-
-Step 1: Create and Structure the Chart
-Initialize a new Helm chart inside your working directory:
-
-Bash
+```bash
 mkdir web-service
 cd web-service
+```
+
+### Create the Helm chart
+
+```bash
 helm create webservice
-Chart Directory Layout
-Plaintext
+```
+
+---
+
+# Step 2: Review Helm Chart Structure
+
+```text
 webservice/
-├── .helmignore             # Patterns to ignore when packaging
-├── Chart.yaml              # Chart metadata (name, version, description)
-├── values.yaml             # Default configuration values
-├── charts/                 # Folder for storing chart dependencies (subcharts)
-└── templates/              # Folder for Kubernetes manifest templates
-    ├── _helpers.tpl        # Reusable template snippets/helpers
-    ├── NOTES.txt           # Usage instructions displayed after installation
-    ├── deployment.yaml     # Default Kubernetes Deployment manifest
-    ├── service.yaml        # Default Kubernetes Service manifest
-    ├── ingress.yaml        # Default Kubernetes Ingress manifest
-    ├── serviceaccount.yaml # Default Kubernetes ServiceAccount manifest
-    ├── hpa.yaml            # Default Horizontal Pod Autoscaler manifest
-    └── tests/              # Folder containing test connection scripts
+├── .helmignore
+├── Chart.yaml
+├── values.yaml
+├── charts/
+└── templates/
+    ├── _helpers.tpl
+    ├── NOTES.txt
+    ├── deployment.yaml
+    ├── service.yaml
+    ├── ingress.yaml
+    ├── serviceaccount.yaml
+    ├── hpa.yaml
+    └── tests/
         └── test-connection.yaml
-Step 2: Customize the Templates
-1. Deployment Template (templates/deployment.yaml)
-YAML
+```
+
+### Important Files
+
+* `Chart.yaml` → Chart information
+* `values.yaml` → Default configuration values
+* `templates/deployment.yaml` → Kubernetes Deployment
+* `templates/service.yaml` → Kubernetes Service
+* `templates/ingress.yaml` → Ingress configuration
+* `templates/serviceaccount.yaml` → ServiceAccount
+* `templates/hpa.yaml` → Horizontal Pod Autoscaler
+* `templates/_helpers.tpl` → Reusable Helm templates
+
+---
+
+# Step 3: Customize the Helm Chart
+
+## 3.1 Deployment Template
+
+File:
+
+```text
+webservice/templates/deployment.yaml
+```
+
+### Requirements
+
+* Set the replica count.
+* Use values from `values.yaml`.
+* Use `{{- with .Values.image }}` for image configuration.
+* Define the replica count variable.
+* Add required labels.
+* Use the same labels for the Deployment selector and Pod selector.
+* Ensure the Deployment works with the Nginx Service.
+
+### `deployment.yaml`
+
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -226,8 +126,34 @@ spec:
           image: "{{ .repository }}:{{ .tag }}"
           imagePullPolicy: IfNotPresent
           {{- end }}
-2. Service Template (templates/service.yaml)
-YAML
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+```
+
+---
+
+## 3.2 Service Template
+
+File:
+
+```text
+webservice/templates/service.yaml
+```
+
+### Requirements
+
+* Create the `service.yaml` file.
+* Use `ClusterIP` service.
+* Expose port `80`.
+* Target Nginx container port `80`.
+* Use TCP protocol.
+* Use the same label as the Deployment.
+
+### `service.yaml`
+
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -235,58 +161,327 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Chart.Name }}
 spec:
-    type: ClusterIP
-    ports:
-      - port: 80
-        targetPort: 80
-        protocol: TCP
-        name: http
-    selector:
-      app.kubernetes.io/name: {{ .Chart.Name }}
-3. Values Configuration (values.yaml)
-YAML
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+```
+
+---
+
+## 3.3 Values File
+
+File:
+
+```text
+webservice/values.yaml
+```
+
+### `values.yaml`
+
+```yaml
 replicaCount: 3
+
 image:
   repository: nginx
   tag: latest
-Step 3: Package and Index the Chart
-Navigate back to the parent directory containing the webservice folder (do not run packaging from inside the template/chart directory):
+```
 
-Bash
-cd -
-Package the chart into a .tgz archive:
+---
 
-Bash
+# Step 4: Validate the Helm Chart
+
+### Go to the project directory
+
+```bash
+cd web-service
+```
+
+### Check the chart
+
+```bash
+helm lint webservice
+```
+
+### Render the Kubernetes manifests
+
+```bash
+helm template webservice ./webservice
+```
+
+### Optional: Check the generated resources
+
+```bash
+helm template webservice ./webservice | kubectl apply --dry-run=client -f -
+```
+
+---
+
+# Step 5: Package the Helm Chart
+
+### Make sure you are in the parent directory
+
+```text
+web-service/
+└── webservice/
+```
+
+Run:
+
+```bash
 helm package webservice
-Generate the Helm repository index file:
+```
 
-Bash
+This creates a package similar to:
+
+```text
+webservice-0.1.0.tgz
+```
+
+### Create the Helm repository index
+
+Run from the **same parent directory**:
+
+```bash
 helm repo index .
-Step 4: Host the Helm Repository on GitHub
-Create a new public repository on GitHub named WebService-Repo.
+```
 
-Initialize local Git tracking and push your packaged charts:
+You should now have:
 
-Bash
+```text
+web-service/
+├── webservice/
+├── webservice-0.1.0.tgz
+└── index.yaml
+```
+
+---
+
+# Step 6: Create GitHub Repository
+
+Create a new GitHub repository.
+
+### Repository Name
+
+```text
+WebService-Repo
+```
+
+### Initialize Git
+
+From the `web-service` directory:
+
+```bash
 git init
-git remote add origin https://github.com/username/WebService-repo.git
+```
+
+### Add GitHub remote
+
+Replace `username` with your GitHub username:
+
+```bash
+git remote add origin https://github.com/username/WebService-Repo.git
+```
+
+### Add files
+
+```bash
 git add .
-git commit -m "Add webservice charts"
+```
+
+### Commit
+
+```bash
+git commit -m "Add webservice Helm chart"
+```
+
+### Push to GitHub
+
+```bash
+git branch -M main
 git push -u origin main
-Navigate to your repository Settings > Pages and enable GitHub Pages, choosing the main branch as the source.
+```
 
-Step 5: Consume and Install the Helm Repo
-Add your newly hosted repository to your local Helm client, search for available packages, and deploy your service:
+---
 
-Bash
-# Add the custom repository
-helm repo add myrepo https://username.github.io/helm-repo
+# Step 7: Configure GitHub Pages
+
+* Open **WebService-Repo** on GitHub.
+* Go to **Settings**.
+* Select **Pages**.
+* Under **Build and deployment**, select:
+
+  * Source: **Deploy from a branch**
+  * Branch: **main**
+  * Folder: **/ (root)**
+* Click **Save**.
+
+Your Helm repository URL will be:
+
+```text
+https://username.github.io/WebService-Repo/
+```
+
+---
+
+# Step 8: Add the Helm Repository
+
+Run:
+
+```bash
+helm repo add myrepo https://username.github.io/WebService-Repo/
+```
+
+Update the repository:
+
+```bash
+helm repo update
+```
+
+---
+
+# Step 9: Search the Helm Repository
+
+```bash
+helm search repo myrepo
+```
+
+Expected chart:
+
+```text
+myrepo/webservice
+```
+
+---
+
+# Step 10: Install the Helm Chart
+
+Install the chart:
+
+```bash
+helm install webservice-service myrepo/webservice
+```
+
+---
+
+# Step 11: Verify the Deployment
+
+### Check Helm release
+
+```bash
+helm list
+```
+
+### Check Pods
+
+```bash
+kubectl get pods
+```
+
+### Check Deployment
+
+```bash
+kubectl get deployment
+```
+
+### Check Service
+
+```bash
+kubectl get svc
+```
+
+---
+
+# Step 12: Test the Application
+
+Because the Service type is `ClusterIP`, access it using port forwarding:
+
+```bash
+kubectl port-forward svc/webservice 8080:80
+```
+
+Open:
+
+```text
+http://localhost:8080
+```
+
+You should see the **Nginx welcome page**.
+
+---
+
+# Complete Workflow
+
+```text
+Create Helm Chart
+       ↓
+Customize Deployment
+       ↓
+Create Service
+       ↓
+Update values.yaml
+       ↓
+helm lint
+       ↓
+helm template
+       ↓
+helm package
+       ↓
+helm repo index
+       ↓
+Push to GitHub
+       ↓
+Enable GitHub Pages
+       ↓
+helm repo add
+       ↓
+helm repo update
+       ↓
+helm search repo
+       ↓
+helm install
+       ↓
+kubectl get pods
+       ↓
+kubectl get svc
+```
+
+# Important Commands
+
+```bash
+helm create webservice
+
+helm lint webservice
+
+helm template webservice ./webservice
+
+helm package webservice
+
+helm repo index .
+
+git init
+
+git add .
+
+git commit -m "Add webservice Helm chart"
+
+git branch -M main
+
+git push -u origin main
+
+helm repo add myrepo https://username.github.io/WebService-Repo/
+
 helm repo update
 
-# Search for available charts
 helm search repo myrepo
 
-# Install the web service
-helm install Web-service myrepo/Web-service
+helm install webservice-service myrepo/webservice
 
+kubectl get pods
 
+kubectl get svc
+```
