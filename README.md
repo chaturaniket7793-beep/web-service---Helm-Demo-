@@ -241,182 +241,157 @@ This creates a package similar to:
 ```text
 webservice-0.1.0.tgz
 ```
+Step 6: Create GitHub Repository
 
-### Create the Helm repository index
+Create a new GitHub repository with the following name:
 
-Run from the **same parent directory**:
-
-```bash
-helm repo index .
-```
-
-You should now have:
-
-```text
-web-service/
-├── webservice/
-├── webservice-0.1.0.tgz
-└── index.yaml
-```
-
----
-
-# Step 6: Create GitHub Repository
-
-Create a new GitHub repository.
-
-### Repository Name
-
-```text
 WebService-Repo
-```
 
-### Initialize Git
+Do not initialize the repository with a README, .gitignore, or license if you are going to push the existing local project.
 
-From the `web-service` directory:
+Initialize Git
 
-```bash
+From the web-service directory:
+
 git init
-```
+Add GitHub Remote
 
-### Add GitHub remote
+Use your GitHub username:
 
-Replace `username` with your GitHub username:
-
-```bash
-git remote add origin https://github.com/username/WebService-Repo.git
-```
-
-### Add files
-
-```bash
+git remote add origin https://github.com/chaturaniket7793-beep/WebService-Repo.git
+Add Files
 git add .
-```
-
-### Commit
-
-```bash
+Commit
 git commit -m "Add webservice Helm chart"
-```
-
-### Push to GitHub
-
-```bash
+Push to GitHub
 git branch -M main
 git push -u origin main
-```
 
----
+Your GitHub repository will be:
 
-# Step 7: Configure GitHub Pages
+https://github.com/chaturaniket7793-beep/WebService-Repo
+Step 7: Configure GitHub Pages
 
-* Open **WebService-Repo** on GitHub.
-* Go to **Settings**.
-* Select **Pages**.
-* Under **Build and deployment**, select:
+Open the WebService-Repo repository on GitHub.
 
-  * Source: **Deploy from a branch**
-  * Branch: **main**
-  * Folder: **/ (root)**
-* Click **Save**.
+Go to:
+
+Settings → Pages
+
+Under Build and deployment:
+
+Source: Deploy from a branch
+Branch: main
+Folder: / (root)
+
+Click Save.
 
 Your Helm repository URL will be:
 
-```text
-https://username.github.io/WebService-Repo/
-```
+https://chaturaniket7793-beep.github.io/WebService-Repo/
 
----
+Important: The repository root must contain the Helm repository files:
 
-# Step 8: Add the Helm Repository
+index.yaml
+webservice-0.1.0.tgz
 
-Run:
+These files are created using:
 
-```bash
-helm repo add myrepo https://username.github.io/WebService-Repo/
-```
+helm package webservice
+helm repo index .
+Step 8: Add the Helm Repository
+
+Add the GitHub Pages Helm repository:
+
+helm repo add myrepo https://chaturaniket7793-beep.github.io/WebService-Repo/
 
 Update the repository:
 
-```bash
 helm repo update
-```
 
----
+Verify the repository:
 
-# Step 9: Search the Helm Repository
+helm repo list
 
-```bash
+Expected output should contain:
+
+myrepo    https://chaturaniket7793-beep.github.io/WebService-Repo/
+Step 9: Search the Helm Repository
+
+Run:
+
 helm search repo myrepo
-```
 
-Expected chart:
+Expected output:
 
-```text
+NAME              CHART VERSION    APP VERSION    DESCRIPTION
+myrepo/webservice 0.1.0             1.0            A Helm chart for Kubernetes
+
+The important part is:
+
 myrepo/webservice
-```
+Step 10: Install the Helm Chart
 
----
+Install the Helm chart:
 
-# Step 10: Install the Helm Chart
-
-Install the chart:
-
-```bash
 helm install webservice-service myrepo/webservice
-```
 
----
+Expected result:
 
-# Step 11: Verify the Deployment
-
-### Check Helm release
-
-```bash
+NAME: webservice-service
+STATUS: deployed
+Step 11: Verify the Deployment
+Check Helm Release
 helm list
-```
 
-### Check Pods
+You should see:
 
-```bash
+NAME                  STATUS
+webservice-service    deployed
+Check Pods
 kubectl get pods
-```
 
-### Check Deployment
+Expected:
 
-```bash
+NAME                            READY   STATUS    RESTARTS   AGE
+webservice-xxxxxxxxxx-xxxxx    1/1     Running   0          ...
+Check Deployment
 kubectl get deployment
-```
 
-### Check Service
+Expected:
 
-```bash
+NAME         READY   UP-TO-DATE   AVAILABLE
+webservice   1/1     1            1
+Check Service
 kubectl get svc
-```
 
----
+Expected:
 
-# Step 12: Test the Application
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)
+webservice   ClusterIP   10.x.x.x        <none>        80/TCP
+Step 12: Test the Application
 
-Because the Service type is `ClusterIP`, access it using port forwarding:
+The Service is configured as:
 
-```bash
+ClusterIP
+
+Therefore, it is accessible inside the Kubernetes cluster.
+
+Use port forwarding to access it from your local machine:
+
 kubectl port-forward svc/webservice 8080:80
-```
 
-Open:
+Expected output:
 
-```text
+Forwarding from 127.0.0.1:8080 -> 80
+
+Open your browser and visit:
+
 http://localhost:8080
-```
 
-You should see the **Nginx welcome page**.
+You should see the Nginx welcome page.
 
----
-
-# Complete Workflow
-
-```text
+Complete Workflow
 Create Helm Chart
        ↓
 Customize Deployment
@@ -431,9 +406,17 @@ helm template
        ↓
 helm package
        ↓
-helm repo index
+helm repo index .
        ↓
-Push to GitHub
+Create GitHub Repository
+       ↓
+git init
+       ↓
+git add .
+       ↓
+git commit
+       ↓
+git push
        ↓
 Enable GitHub Pages
        ↓
@@ -447,12 +430,15 @@ helm install
        ↓
 kubectl get pods
        ↓
+kubectl get deployment
+       ↓
 kubectl get svc
-```
-
-# Important Commands
-
-```bash
+       ↓
+kubectl port-forward
+       ↓
+Open Nginx Application
+Important Commands
+Helm Chart
 helm create webservice
 
 helm lint webservice
@@ -462,8 +448,10 @@ helm template webservice ./webservice
 helm package webservice
 
 helm repo index .
-
+GitHub
 git init
+
+git remote add origin https://github.com/chaturaniket7793-beep/WebService-Repo.git
 
 git add .
 
@@ -472,16 +460,50 @@ git commit -m "Add webservice Helm chart"
 git branch -M main
 
 git push -u origin main
-
-helm repo add myrepo https://username.github.io/WebService-Repo/
+Helm Repository
+helm repo add myrepo https://chaturaniket7793-beep.github.io/WebService-Repo/
 
 helm repo update
 
 helm search repo myrepo
-
+Install
 helm install webservice-service myrepo/webservice
-
+Kubernetes Verification
 kubectl get pods
 
+kubectl get deployment
+
 kubectl get svc
-```
+Application Testing
+kubectl port-forward svc/webservice 8080:80
+
+Open:
+
+http://localhost:8080
+Final Repository Structure
+
+Your GitHub repository should look approximately like this:
+
+WebService-Repo/
+│
+├── webservice/
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   ├── .helmignore
+│   │
+│   └── templates/
+│       ├── deployment.yaml
+│       ├── service.yaml
+│       ├── ingress.yaml
+│       ├── serviceaccount.yaml
+│       ├── _helpers.tpl
+│       └── tests/
+│           └── test-connection.yaml
+│
+├── webservice-0.1.0.tgz
+│
+├── index.yaml
+│
+└── README.md
+
+Important: index.yaml and webservice-0.1.0.tgz should be in the root of the GitHub repository, because GitHub Pages is serving the root as the Helm repository.
